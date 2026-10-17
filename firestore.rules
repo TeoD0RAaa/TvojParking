@@ -1,0 +1,54 @@
+rules_version = '2';
+
+// Правила за Firestore базата на TvojParking.
+// Се ставаат во Firebase конзолата: Firestore Database → Rules → залепи го целиот фајл → Publish.
+// Исти правила како FastAPI backend-от: едно место = една активна резервација,
+// 15 мин (или graceMin) да пристигнеш, истекува по резервираните часови.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function nowMs() {
+      return request.time.toMillis();
+    }
+
+    // Резервацијата веќе не важи: поминаа часовите или не пристигнал навреме
+    function isExpired(d) {
+      return d.until <= nowMs()
+        || (d.checkedIn == false && d.createdAt + d.graceMin * 60000 <= nowMs());
+    }
+
+    // Нова резервација: само дозволените полиња, со разумни вредности
+    function isNewReservation(rid, d) {
+      return d.keys().hasOnly(['parkingId', 'spotId', 'plate', 'user', 'hours', 'createdAt', 'until', 'graceMin', 'checkedIn'])
+        && d.keys().hasAll(['parkingId', 'spotId', 'plate', 'user', 'hours', 'createdAt', 'until', 'graceMin', 'checkedIn'])
+        && d.parkingId is string && d.parkingId.size() <= 40
+        && d.spotId is string && d.spotId.size() <= 20
+        && rid == d.parkingId + '__' + d.spotId
+        && d.plate is string && d.plate.size() >= 4 && d.plate.size() <= 15
+        && d.user is string && d.user.size() >= 2 && d.user.size() <= 40
+        && d.hours is int && d.hours >= 1 && d.hours <= 12
+        && d.graceMin is int && d.graceMin >= 5 && d.graceMin <= 120
+        && d.checkedIn == false
+        && d.createdAt is int && math.abs(d.createdAt - nowMs()) < 600000
+        && d.until == d.createdAt + d.hours * 3600000;
+    }
+
+    // „Пристигнав“: се менува само checkedIn, и само додека резервацијата важи
+    function isCheckIn() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['checkedIn'])
+        && request.resource.data.checkedIn == true
+        && !isExpired(resource.data);
+    }
+
+    match /reservations/{rid} {
+      allow read: if true;
+      allow create: if isNewReservation(rid, request.resource.data);
+      // ново резервирање на место чија стара резервација истекла, или check-in
+      allow update: if isCheckIn()
+        || (isExpired(resource.data) && isNewReservation(rid, request.resource.data));
+      allow delete: if true;
+    }
+
+    // сè друго во базата е забрането
+  }
+}

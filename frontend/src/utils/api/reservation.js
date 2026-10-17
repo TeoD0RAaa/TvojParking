@@ -17,9 +17,9 @@ export function graceMinutesLeft(r, now) {
   return Math.min(graceOf(r), Math.max(0, Math.ceil((deadline - now) / MINUTE)))
 }
 
-// На серверот се гледаат сите резервации — „мои“ се оние со твоето име
+// На серверот и во Firebase се гледаат сите резервации — „мои“ се оние со твоето име
 export const mineOnly = (active, mode, profile) =>
-  mode === 'server' ? active.filter((r) => r.user === profile?.name) : active
+  mode === 'local' ? active : active.filter((r) => r.user === profile?.name)
 
 // Податоците што оди во QR кодот
 export const qrPayload = (r) => JSON.stringify({ id: r.id, parking: r.parkingId, spot: r.spotId, plate: r.plate })

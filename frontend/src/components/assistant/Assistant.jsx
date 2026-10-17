@@ -3,6 +3,7 @@ import ChatMessage from './ChatMessage.jsx'
 import ChatInput from './ChatInput.jsx'
 import { answer } from '../../utils/assistant/index.js'
 import { askGemini, hasDirectKey } from '../../utils/assistant/gemini.js'
+import { useServerUp } from '../../hooks/useServerUp.js'
 import './assistant.css'
 
 const SUGGESTIONS = {
@@ -18,7 +19,8 @@ export default function Assistant({ parkings, cityParkings, city, stats, origin,
   const suggestions = city.id === 'skopje' ? SUGGESTIONS.skopje : city.id === 'all' ? SUGGESTIONS.all : SUGGESTIONS.other(city)
   const [messages, setMessages] = useState([GREETING])
   const [thinking, setThinking] = useState(false)
-  const gemini = hasDirectKey || mode === 'server'
+  const serverUp = useServerUp() // резервациите можат да се во Firebase, а асистентот сепак да оди преку backend-от
+  const gemini = hasDirectKey || mode === 'server' || serverUp
   const endRef = useRef(null)
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, thinking])
 
