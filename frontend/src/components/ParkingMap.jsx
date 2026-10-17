@@ -1,10 +1,18 @@
-import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
-import L from 'leaflet'
+import { useEffect, useRef, useState } from 'react'
+import { loadGoogleMaps } from '../lib/loadGoogleMaps.js'
 import { availability } from '../lib/spots.js'
 
+const CENTER = { lat: 41.9975, lng: 21.4255 }
+
+// Сива мапа без туѓи POI-ја, за да се гледаат само нашите паркинзи
+const MAP_STYLES = [
+  { stylers: [{ saturation: -100 }] },
+  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+]
+
 // Пинот е обичен HTML: круг во боја со бројот на слободни места
-function pinIcon(free, total, active) {
+function pinHtml(free, total, active) {
   const a = availability(free, total)
   return L.divIcon({
     className: '',
