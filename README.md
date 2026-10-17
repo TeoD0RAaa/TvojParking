@@ -13,7 +13,14 @@ npm run dev
 ```
 Отвори http://localhost:5173 — работи и без backend (горе пишува **● Демо**).
 
-### 2. Backend (опционално, за заеднички резервации)
+### 2. Firebase — заеднички резервации онлајн (и на GitHub Pages)
+Резервациите се во Firestore (проект `tvojparkking`), па сите корисници ги гледаат истите, во живо —
+без наш сервер. Горе пишува **● Firebase**. Конфигурацијата е во `frontend/src/utils/firebase.js`
+(не е тајна), а правилата за базата се во `firestore.rules`: при секоја промена залепи ги во
+Firebase конзолата → Firestore Database → Rules → Publish.
+Ако Firestore не е достапен, апликацијата сама оди на FastAPI backend-от, па на демо режим.
+
+### 3. Backend (опционално, FastAPI)
 ```
 cd backend
 py -m venv venv

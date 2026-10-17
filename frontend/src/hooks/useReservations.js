@@ -4,13 +4,15 @@ import { reservedSpotsByParking } from '../utils/stats.js'
 
 const POLL_MS = 5000
 
-// Резервации (на серверот се освежуваат на секои 5 сек, за да ги видиш туѓите)
+// Резервации: Firebase ги праќа промените во живо, а од серверот се освежуваат на секои 5 сек
 export function useReservations(mode, profile, now) {
   const [reservations, setReservations] = useState([])
   const api = getApi(mode)
 
   const refresh = useCallback(() => getApi(mode).list().then(setReservations).catch(() => {}), [mode])
   useEffect(() => {
+    const live = getApi(mode).subscribe
+    if (live) return live(setReservations, () => {}) // Firebase: во живо, без чекање
     refresh()
     if (mode !== 'server') return
     const t = setInterval(refresh, POLL_MS)
