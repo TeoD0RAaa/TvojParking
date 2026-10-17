@@ -10,7 +10,7 @@ import ReserveForm from './ReserveForm.jsx'
 import { nextFreeSpot } from '../../utils/spots.js'
 
 export default function ParkingDetails({
-  parking, spots, stat, reservedIds, myReservations, profile, origin, now,
+  parking, spots, stat, reservedIds, myReservations, profile, origin, now, card, onSaveCard,
   onBack, onReserve, onCheckIn, onCancel,
 }) {
   // каков вид место ти треба: обично / ♿ / ⚡ — самото место го доделува системот по ред
@@ -44,6 +44,8 @@ export default function ParkingDetails({
         stat={stat}
         pricePerHour={parking.pricePerHour}
         profile={profile}
+        card={card}
+        onSaveCard={onSaveCard}
         onReserve={reserve}
       />
     </div>

@@ -1,0 +1,25 @@
+.city { position: relative; margin-bottom: 10px; }
+.city__btn { width: 100%; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--card); border-radius: 14px; padding: 10px 12px; text-align: left; }
+.city__btn:hover { background: var(--soft); }
+.city__pin { font-size: 16px; }
+.city__name { font-weight: 800; font-size: 17px; }
+.city__meta { flex: 1; color: var(--muted); font-size: 13px; text-align: right; }
+.city__chev { color: var(--muted); transition: transform .15s; }
+.city__chev.up { transform: rotate(180deg); }
+
+.city__sheet { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 30; background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.14); padding: 8px; max-height: 60vh; overflow-y: auto; }
+.city__nearest { width: 100%; border: 0; border-radius: 10px; padding: 10px; font-weight: 700; margin-bottom: 6px;
+  color: var(--mine); background: color-mix(in srgb, var(--mine) 12%, var(--card)); }
+.city__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.city__list button { width: 100%; display: grid; grid-template-columns: 1fr 70px 64px; align-items: center; gap: 10px; border: 0; background: none; padding: 9px 10px; border-radius: 10px; text-align: left; font-size: 14px; }
+.city__list button:hover { background: var(--soft); }
+.city__list button.on { background: var(--soft); outline: 2px solid var(--mine); }
+.city__row-name small { color: var(--muted); font-size: 11px; }
+.city__row-bar { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.city__row-bar i { display: block; height: 100%; background: var(--green); border-radius: 99px; }
+.city__row-free { text-align: right; color: var(--muted); font-size: 12px; }
+.city__row-free b { color: var(--ink); font-size: 14px; }
+.city__all { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 10px; margin-bottom: 6px; font-size: 14px; text-align: left; }
+.city__all:hover { background: var(--soft); }
+.city__all.on { outline: 2px solid var(--mine); background: var(--soft); }

@@ -4,6 +4,7 @@ import { MAX_HOURS } from '../../utils/api/index.js'
 import { EXTRA_MIN } from '../../utils/travelTime.js'
 import { useTravelTime } from '../../hooks/useTravelTime.js'
 import { isValidName, isValidPlate, normalizePlate } from '../../utils/format.js'
+import CardForm from '../wallet/CardForm.jsx'
 import './reserve.css'
 
 const FULL_TEXT = {
@@ -15,15 +16,16 @@ const FULL_TEXT = {
 /*
   Резервација без бирање место: избираш само вид (обично / ♿ / ⚡),
   а системот ти го дава следното слободно место по ред.
-  Нема бирање часови: почнува со 1 ч, а секој нов започнат час се доплаќа.
+  Без зачувана картичка не може да се резервира — прво се додава картичка, па се плаќа.
 */
-export default function ReserveForm({ parking, kind, setKind, next, stat, pricePerHour, profile, onReserve }) {
+export default function ReserveForm({ parking, kind, setKind, next, stat, pricePerHour, profile, card, onSaveCard, onReserve }) {
   const [name, setName] = useState(profile?.name || '')
   const [plate, setPlate] = useState(profile?.plate || '')
   const [error, setError] = useState(null)
-  const [busy, setBusy] = useState(false)
+  const [busy, setBusy] = useState(false) // плаќањето трае малку
   const trip = useTravelTime(parking, true) // колку ти треба до тука -> толку време имаш да пристигнеш
-  const valid = next && trip && isValidPlate(plate) && isValidName(name)
+  const valid = next && trip && card && isValidPlate(plate) && isValidName(name)
+  const amount = pricePerHour // сега се плаќа само првиот час, останатите на крајот на паркирањето
 
   const submit = async (e) => {
     e.preventDefault()
@@ -43,7 +45,7 @@ export default function ReserveForm({ parking, kind, setKind, next, stat, priceP
   ]
 
   return (
-    <form className="reserve" onSubmit={submit}>
+    <form className={`reserve${next && !card ? ' reserve--static' : ''}`} onSubmit={submit}>
       <div className="kinds">
         {kinds.map((k) => (
           <button key={k.id} type="button" className={kind === k.id ? 'on' : ''} onClick={() => { setKind(k.id); setError(null) }}>
@@ -65,10 +67,23 @@ export default function ReserveForm({ parking, kind, setKind, next, stat, priceP
                   {trip.from?.fallback && ' од центар'} → имаш <b>{trip.graceMin} мин</b> да пристигнеш (+{EXTRA_MIN} мин резерва)</>
               : '🚗 Пресметувам колку ти треба до тука…'}
           </p>
-          {error && <p className="error">{error}</p>}
-          <button className="cta" disabled={!valid || busy}>
-            {busy ? 'Резервирам…' : `Резервирај место · ${pricePerHour} ден/ч`}
-          </button>
+          {!card ? (
+            <>
+              <p className="reserve__nocard">💳 За да резервираш, прво додај картичка.</p>
+              <CardForm onSave={onSaveCard} />
+            </>
+          ) : (
+            <>
+              <div className="reserve__pay">
+                <span>Плаќање со <b>{card.brand} •••• {card.last4}</b></span>
+                <span className="reserve__amount">{amount} ден <small className="muted">прв час</small></span>
+              </div>
+              {error && <p className="error">{error}</p>}
+              <button className="cta" disabled={!valid || busy}>
+                {busy ? '⏳ Се обработува плаќањето…' : `Плати ${amount} ден и резервирај`}
+              </button>
+            </>
+          )}
         </>
       )}
     </form>

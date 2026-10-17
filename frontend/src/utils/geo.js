@@ -1,3 +1,5 @@
+import { inMacedonia } from '../data/cities.js'
+
 // Растојание меѓу две точки на Земјата (формула на Haversine), во километри
 export function distanceKm(a, b) {
   const R = 6371
@@ -25,17 +27,22 @@ export const directionsUrl = (p) =>
 
 export const SKOPJE_CENTER = { lat: 41.9961, lng: 21.4316, name: 'Плоштад Македонија' }
 
-// Ја бара твојата локација. Ако одбиеш или си надвор од Скопје -> Плоштад.
-export function getMyLocation() {
+// Ја бара твојата локација. Ако одбиеш или си надвор од Македонија -> центарот на `fallback` градот.
+export function getMyLocation(fallback = SKOPJE_CENTER) {
+  const fb = { lat: fallback.lat, lng: fallback.lng, name: fallback.name, fallback: true }
   return new Promise((resolve) => {
-    if (!navigator.geolocation) return resolve({ ...SKOPJE_CENTER, fallback: true })
+    if (!navigator.geolocation) return resolve(fb)
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const me = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: 'Твоја локација' }
-        resolve(distanceKm(me, SKOPJE_CENTER) > 20 ? { ...SKOPJE_CENTER, fallback: true } : me)
+        resolve(inMacedonia(me) ? me : fb)
       },
-      () => resolve({ ...SKOPJE_CENTER, fallback: true }),
+      () => resolve(fb),
       { timeout: 6000 }
     )
   })
 }
+
+// Најблискиот град до дадена точка
+export const nearestCity = (point, cities) =>
+  cities.reduce((a, b) => (distanceKm(point, b) < distanceKm(point, a) ? b : a))

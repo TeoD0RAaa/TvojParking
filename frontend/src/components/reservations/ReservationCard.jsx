@@ -19,7 +19,7 @@ export default function ReservationCard({ r, parking, now, onCheckIn, onCancel, 
           : <div className="warn">Пристигни за {graceMinutesLeft(r, now)} мин или истекува</div>}
         <div className="rcard__actions">
           {!r.checkedIn && <button className="small primary" onClick={onCheckIn}>Пристигнав</button>}
-          <button className="small danger" onClick={onCancel}>Откажи</button>
+          <button className="small danger" onClick={onCancel}>{r.checkedIn ? 'Заврши паркирање' : 'Откажи'}</button>
         </div>
       </div>
     </div>

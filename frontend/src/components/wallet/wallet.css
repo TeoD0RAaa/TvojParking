@@ -1,0 +1,32 @@
+.cardform { display: grid; gap: 10px; border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: var(--card); }
+.cardform label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.cardform input { font-size: 15px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; width: 100%; letter-spacing: .02em; }
+.cardform__head { display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+.cardform__row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cardform__note { margin: 0; font-size: 12px; }
+.cardform__actions { display: flex; gap: 8px; }
+.cardform small { font-size: 12px; }
+
+.addcard { border: 2px dashed var(--line); background: var(--card); border-radius: 14px; padding: 16px; font-weight: 700; width: 100%; }
+.addcard:hover { background: var(--soft); }
+
+.ccard { border-radius: 16px; padding: 18px; color: #fff; background: linear-gradient(135deg, #2b2f6b, #6d4bd8); display: grid; gap: 10px; box-shadow: 0 8px 24px rgba(109,75,216,.3); }
+.ccard__brand { font-weight: 800; font-style: italic; font-size: 18px; text-align: right; }
+.ccard__num { font-size: 19px; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+.ccard__foot { display: flex; justify-content: space-between; font-size: 13px; opacity: .85; }
+.ccard__actions { display: flex; gap: 8px; }
+.ccard__actions .small { background: rgba(255,255,255,.15); border-color: rgba(255,255,255,.3); color: #fff; }
+
+.payments { display: grid; gap: 8px; }
+.pay { display: flex; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.pay .muted { font-size: 12px; }
+.pay__amount { font-weight: 700; white-space: nowrap; display: grid; text-align: right; }
+.pay__amount small { color: var(--green); font-weight: 600; font-size: 11px; }
+.pay--refunded { opacity: .75; }
+.payments__total { text-align: right; font-size: 14px; color: var(--muted); }
+
+.wallet-section { display: grid; gap: 10px; border-top: 1px solid var(--line); margin-top: 20px; padding-top: 16px; }
+.wallet-section h3 { margin: 0; font-size: 15px; }
+.user-row { display: flex; align-items: center; gap: 10px; background: var(--soft); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; }
+.user-row__avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--mine); color: #fff; display: grid; place-items: center; font-weight: 700; }
+.user-row__info { flex: 1; font-size: 14px; display: grid; }

@@ -23,7 +23,7 @@ export function useReservations(mode, profile, now) {
   const mine = useMemo(() => mineOnly(active, mode, profile), [active, mode, profile])
   const reservedByParking = useMemo(() => reservedSpotsByParking(active), [active])
 
-  const create = async (data) => { await api.create(data); await refresh() }
+  const create = async (data) => { const r = await api.create(data); await refresh(); return r }
   const checkIn = async (id) => { await api.checkIn(id); await refresh() }
   const cancel = async (id) => { await api.cancel(id); await refresh() }
 
