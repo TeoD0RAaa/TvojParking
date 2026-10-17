@@ -1,0 +1,14 @@
+.summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.summary div { background: var(--bg); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; }
+.summary strong { font-size: 26px; }
+.summary span { color: var(--muted); font-size: 13px; }
+
+.plist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.pitem { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px; border: 0; background: none; border-radius: 12px; text-align: left; }
+.pitem:hover { background: var(--bg); }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.pitem__text { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.pitem__name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pitem__meta { color: var(--muted); font-size: 13px; }
+.pitem__free { font-weight: 800; font-size: 18px; flex: none; }
+.pitem__free small { color: var(--muted); font-weight: 500; font-size: 13px; }

@@ -1,0 +1,21 @@
+:root {
+  --green: #22a45d;
+  --yellow: #e9a800;
+  --red: #e0453a;
+  --ink: #1f2328;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #f6f7f8;
+  --mine: #6d4bd8;
+}
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body { font-family: Inter, system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+button { font: inherit; cursor: pointer; }
+
+/* Лев панел + мапа; на телефон мапата е горе */
+.app { display: grid; grid-template-columns: 400px 1fr; height: 100%; }
+
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 45vh 1fr; }
+}
