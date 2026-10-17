@@ -5,23 +5,24 @@ import DirectionsRow from './DirectionsRow.jsx'
 import Forecast from './Forecast.jsx'
 import ReservationsHere from './ReservationsHere.jsx'
 import SpotLegend from './SpotLegend.jsx'
-import SpotBlock from './SpotBlock.jsx'
+import SpotGrid from './SpotGrid.jsx'
 import ReserveForm from './ReserveForm.jsx'
-import { spotsInBlock } from '../../utils/spots.js'
+import { nextFreeSpot } from '../../utils/spots.js'
 
 export default function ParkingDetails({
   parking, spots, stat, reservedIds, myReservations, profile, origin, now, presetHours,
   onBack, onReserve, onCheckIn, onCancel,
 }) {
-  const [selectedSpot, setSelectedSpot] = useState(null)
-
+  // каков вид место ти треба: обично / ♿ / ⚡ — самото место го доделува системот по ред
+  const [kind, setKind] = useState('normal')
   const mySpotIds = new Set(myReservations.map((r) => r.spotId))
-  const spot = spots.find((s) => s.id === selectedSpot)
+  const next = nextFreeSpot(spots, reservedIds, kind)
 
-  const toggleSpot = (id) => setSelectedSpot((current) => (current === id ? null : id))
+  // го резервира следното слободно место по ред (се бара повторно во моментот на клик)
   const reserve = async (data) => {
-    await onReserve({ spotId: selectedSpot, ...data })
-    setSelectedSpot(null)
+    const spot = nextFreeSpot(spots, reservedIds, kind)
+    if (!spot) throw new Error('Нема повеќе слободни места од овој вид.')
+    await onReserve({ spotId: spot.id, ...data })
   }
 
   return (
@@ -29,23 +30,18 @@ export default function ParkingDetails({
       <DetailsHeader parking={parking} onBack={onBack} />
       <AvailabilityCard parking={parking} stat={stat} />
       <DirectionsRow parking={parking} origin={origin} />
-      <Forecast parking={parking} total={stat.total} />
+      <Forecast parking={parking} total={stat.total} free={stat.free} />
       <ReservationsHere reservations={myReservations} parking={parking} now={now} onCheckIn={onCheckIn} onCancel={onCancel} />
       <SpotLegend />
 
-      {parking.blocks.map((b) => (
-        <SpotBlock
-          key={b.name}
-          block={b}
-          spots={spotsInBlock(spots, b.name)}
-          states={{ mySpotIds, reservedIds, selectedSpot }}
-          onToggle={toggleSpot}
-        />
-      ))}
+      <SpotGrid spots={spots} states={{ mySpotIds, reservedIds, nextId: next?.id }} />
 
       <ReserveForm
-        full={stat.free <= 0}
-        spot={spot}
+        parking={parking}
+        kind={kind}
+        setKind={setKind}
+        next={next}
+        stat={stat}
         pricePerHour={parking.pricePerHour}
         profile={profile}
         presetHours={presetHours}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 // Поле за прашање; се празни кога пораката е пратена
-export default function ChatInput({ onSend }) {
+export default function ChatInput({ onSend, disabled }) {
   const [input, setInput] = useState('')
   const submit = (e) => {
     e.preventDefault()
@@ -10,7 +10,7 @@ export default function ChatInput({ onSend }) {
   return (
     <form className="chat__input" onSubmit={submit}>
       <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Каде одиш?" />
-      <button className="small primary">Прати</button>
+      <button className="small primary" disabled={disabled}>Прати</button>
     </form>
   )
 }

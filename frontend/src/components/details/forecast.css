@@ -10,3 +10,6 @@
 .fbar__fill { width: 100%; border-radius: 4px; }
 .fbar--best span { color: var(--ink); font-weight: 800; }
 .fbar--best .fbar__track { outline: 2px solid var(--ink); }
+.forecast__how { margin-top: 8px; font-size: 13px; color: var(--muted); }
+.forecast__how summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+.forecast__how p { margin: 6px 0 0; line-height: 1.45; }

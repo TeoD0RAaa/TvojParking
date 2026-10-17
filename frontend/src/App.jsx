@@ -44,11 +44,11 @@ export default function App() {
     flash(`Најблизок слободен: ${best.name}`)
   }
 
-  const reserve = async ({ spotId, plate, hours, name }) => {
+  const reserve = async ({ spotId, plate, hours, name, graceMin }) => {
     if (!profile || profile.name !== name || profile.plate !== plate) setProfile({ name, plate })
-    await create({ parkingId: selectedId, spotId, plate, user: name, hours })
+    await create({ parkingId: selectedId, spotId, plate, user: name, hours, graceMin })
     releaseSpot(selectedId, spotId)
-    flash(`Резервирано: место ${spotId} ✓  QR кодот е во „Мои“`)
+    flash(`Резервирано: место ${spotId} ✓  Имаш ${graceMin} мин да стигнеш`)
   }
   const handleCheckIn = async (id) => { await checkIn(id); flash('Добредојде! Паркиран си ✓') }
   const handleCancel = async (id) => { await cancel(id); flash('Резервацијата е откажана') }
@@ -74,7 +74,7 @@ export default function App() {
             onBack: () => goTo('list'), onReserve: reserve, onCheckIn: handleCheckIn, onCancel: handleCancel,
           }}
           mine={{ reservations: mine, profile, setProfile, now, onCheckIn: handleCheckIn, onCancel: handleCancel, onOpen: openParking }}
-          assistant={{ parkings: PARKINGS, stats, origin, onOpen: openParking }}
+          assistant={{ parkings: PARKINGS, stats, origin, mode, onOpen: openParking }}
           scanner={{ parkings: PARKINGS, stats, onApply: applyScan }}
           list={{
             parkings: filtered, allCount: PARKINGS.length, stats, onSelect: openParking,

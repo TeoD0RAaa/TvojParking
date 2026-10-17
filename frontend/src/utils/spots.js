@@ -1,53 +1,67 @@
-import { seededRandom } from './random.js'
-
-const BLOCK_LETTERS = 'АБВГДЃЕ'
-
 export const KIND_LABEL = { accessible: '♿ за лица со попреченост', ev: '⚡ полнење за електрично возило', normal: 'обично место' }
 
-// првите 2 места во првиот блок се за лица со попреченост, последните 2 во последниот = полнење
-function spotKind(parking, blockIndex, i, count) {
-  if (blockIndex === 0 && i <= 2) return 'accessible'
-  if (parking.ev && blockIndex === parking.blocks.length - 1 && i > count - 2) return 'ev'
+const EV_SPOTS = 2 // последните 2 места се за полнење (ако паркингот има полначи)
+
+// Нема блокови: сите места се во еден ред по број.
+// Првите `parking.accessible` места се ♿, последните 2 се ⚡ (ако има полначи), другите се обични.
+function spotKind(parking, n) {
+  if (n <= parking.accessible) return 'accessible'
+  if (parking.ev && n > parking.capacity - EV_SPOTS) return 'ev'
   return 'normal'
 }
 
-// Ги прави сите места на паркингот:
-// [{ id: 'А-07', block: 'Блок А', taken: true, kind: 'normal' | 'accessible' | 'ev' }, ...]
+// Ги прави сите места на паркингот, нумерирани по ред: 01, 02, 03 …
+// [{ id: '07', n: 7, taken: true, kind: 'normal' | 'accessible' | 'ev' }, ...]
 export function buildSpots(parking) {
+  const digits = Math.max(2, String(parking.capacity).length)
   const spots = []
-  parking.blocks.forEach((b, bi) => {
-    const count = b.rows * b.perRow
-    for (let i = 1; i <= count; i++) {
-      const id = `${BLOCK_LETTERS[bi]}-${String(i).padStart(2, '0')}`
-      spots.push({ id, block: b.name, taken: false, kind: spotKind(parking, bi, i, count) })
-    }
-  })
-  setTakenCount(spots, Math.round(spots.length * parking.occupancy), seededRandom(parking.id))
+  for (let n = 1; n <= parking.capacity; n++) {
+    spots.push({ id: String(n).padStart(digits, '0'), n, taken: false, kind: spotKind(parking, n) })
+  }
+  setTakenCount(spots, Math.round(spots.length * parking.occupancy))
   return spots
 }
 
-// Точно n места да бидат зафатени (по случаен редослед). Не ги допира резервираните.
-export function setTakenCount(spots, n, rand = Math.random, reserved = new Set()) {
+/*
+  Точно n места да бидат зафатени — ПО РЕД, не случајно.
+  ♿ местата се пополнуваат посебно (сразмерно), другите: 01, 02, 03 … по ред.
+  Не ги допира резервираните.
+*/
+export function setTakenCount(spots, n, reserved = new Set()) {
   const pool = spots.filter((s) => !reserved.has(s.id))
-  pool.forEach((s) => { s.taken = false })
-  const order = pool.map((_, i) => i).sort(() => rand() - 0.5)
-  order.slice(0, Math.min(n, pool.length)).forEach((i) => { pool[i].taken = true })
+  const acc = pool.filter((s) => s.kind === 'accessible')
+  const rest = pool.filter((s) => s.kind !== 'accessible')
+  const ratio = spots.length ? Math.min(1, n / spots.length) : 0
+  const accTaken = Math.round(acc.length * ratio)
+  acc.forEach((s, i) => { s.taken = i < accTaken })
+  const restTaken = Math.min(rest.length, n - accTaken)
+  rest.forEach((s, i) => { s.taken = i < restTaken })
 }
 
-export const spotsInBlock = (spots, blockName) => spots.filter((s) => s.block === blockName)
+const isFree = (s, reservedIds) => !s.taken && !reservedIds.has(s.id)
 
-// Состојба на место за приказ: mine / taken / selected / free
-export function spotState(spot, { mySpotIds, reservedIds, selectedSpot }) {
+/*
+  Следното слободно место по ред за даден вид:
+    'accessible' -> првото слободно ♿ место
+    'ev'         -> првото слободно ⚡ место
+    'normal'     -> првото слободно обично место (не ги зема ♿ и ⚡)
+*/
+export const nextFreeSpot = (spots, reservedIds, kind = 'normal') =>
+  spots.find((s) => s.kind === kind && isFree(s, reservedIds)) || null
+
+// Состојба на место за приказ: mine / taken / next (тоа ќе го добиеш) / free
+export function spotState(spot, { mySpotIds, reservedIds, nextId }) {
   if (mySpotIds.has(spot.id)) return 'mine'
   if (spot.taken || reservedIds.has(spot.id)) return 'taken'
-  if (selectedSpot === spot.id) return 'selected'
+  if (nextId === spot.id) return 'next'
   return 'free'
 }
 
-export function spotLabel(spot, state) {
+// Иконата над бројот на местото (бројот секогаш се гледа)
+export function spotIcon(spot, state) {
   if (state === 'taken') return '🚗'
   if (state === 'mine') return '★'
   if (spot.kind === 'accessible') return '♿'
   if (spot.kind === 'ev') return '⚡'
-  return spot.id.split('-')[1]
+  return null
 }

@@ -1,5 +1,5 @@
 import { distanceKm, formatDistance, walkMinutes } from '../geo.js'
-import { predictOccupancy } from '../forecast.js'
+import { currentOccupancy, predictOccupancy } from '../forecast.js'
 
 const ARRIVAL_MIN = 20 // проценка за колку време ќе стигнеш
 
@@ -17,7 +17,8 @@ function candidatesFor(q, parkings, stats) {
 */
 function score(p, { q, from, stats, now }) {
   const km = from ? distanceKm(from, p) : 0
-  const busy = predictOccupancy(p, new Date(now.getTime() + ARRIVAL_MIN * 60_000))
+  const cur = currentOccupancy(stats[p.id].free, stats[p.id].total)
+  const busy = predictOccupancy(p, new Date(now.getTime() + ARRIVAL_MIN * 60_000), cur, now)
   const points = km * 10 + (q.cheap ? p.pricePerHour / 5 : 0) + (busy > 0.9 ? 4 : 0) - stats[p.id].free / 20
   return { p, km, busy, score: points }
 }

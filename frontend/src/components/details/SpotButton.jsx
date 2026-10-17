@@ -1,15 +1,18 @@
-import { KIND_LABEL, spotLabel } from '../../utils/spots.js'
+import { KIND_LABEL, spotIcon } from '../../utils/spots.js'
 
-export default function SpotButton({ spot, state, onClick }) {
-  const special = spot.kind !== 'normal' ? ' spot--special' : ''
+const BADGE = { accessible: '♿', ev: '⚡' }
+
+// Едно место (само за приказ, не се кликнува): (икона) + број.
+// ♿ / ⚡ места имаат мала ознака во аголот и кога се зафатени.
+export default function SpotButton({ spot, state }) {
+  const special = spot.kind !== 'normal' ? ` spot--${spot.kind}` : ''
+  const icon = state === 'next' ? '➜' : spotIcon(spot, state)
+  const badge = (state === 'taken' || state === 'mine' || state === 'next') && BADGE[spot.kind]
   return (
-    <button
-      className={`spot spot--${state}${special}`}
-      disabled={state === 'taken' || state === 'mine'}
-      title={`${spot.id} · ${KIND_LABEL[spot.kind]}`}
-      onClick={onClick}
-    >
-      {spotLabel(spot, state)}
-    </button>
+    <div className={`spot spot--${state}${special}`} title={`Место ${spot.id} · ${KIND_LABEL[spot.kind]}`}>
+      {badge && <span className="spot__badge">{badge}</span>}
+      {icon && <span className="spot__icon">{icon}</span>}
+      <span className="spot__num">{spot.id}</span>
+    </div>
   )
 }

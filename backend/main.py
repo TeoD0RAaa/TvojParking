@@ -4,8 +4,12 @@ TvojParking backend — FastAPI + SQLite.
 Ги чува резервациите во фајл tvojparking.db, за сите корисници да гледаат исти резервации.
 Правила:
   - едно место не може да има две активни резервации (одговор 409)
-  - ако не пристигнеш (check-in) за 15 минути, резервацијата истекува
+  - ако не пристигнеш (check-in) за graceMin минути, резервацијата истекува
+    (graceMin = време на возење до паркингот според Google + 5 мин; стандардно 15)
   - по истекот на часовите, резервацијата истекува
+
+Асистентот (/api/assistant) користи Gemini. API клучот се чува во backend/.env (НЕ се качува на GitHub):
+    GEMINI_API_KEY=твојот-клуч
 
 Стартување:  uvicorn main:app --reload      Документација: http://localhost:8000/docs
 """
@@ -14,12 +18,14 @@ import time
 import uuid
 from pathlib import Path
 
+from assistant import ChatRequest, ask_gemini
+
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 DB_PATH = Path(__file__).with_name("tvojparking.db")
-GRACE_MS = 15 * 60 * 1000  # 15 минути за да пристигнеш
+DEFAULT_GRACE_MIN = 15  # ако frontend-от не прати време за пристигнување
 
 app = FastAPI(title="TvojParking API")
 app.add_middleware(
@@ -51,17 +57,22 @@ with db() as conn:
             hours INTEGER NOT NULL,
             created_at INTEGER NOT NULL,
             until INTEGER NOT NULL,
-            checked_in INTEGER NOT NULL DEFAULT 0
+            checked_in INTEGER NOT NULL DEFAULT 0,
+            grace_min INTEGER NOT NULL DEFAULT 15
         )"""
     )
+    # постари бази немаат grace_min -> додај ја колоната
+    cols = {r["name"] for r in conn.execute("PRAGMA table_info(reservations)")}
+    if "grace_min" not in cols:
+        conn.execute("ALTER TABLE reservations ADD COLUMN grace_min INTEGER NOT NULL DEFAULT 15")
 
 
 def purge_expired(conn: sqlite3.Connection) -> None:
     """Ги брише истечените резервации."""
     t = now_ms()
     conn.execute(
-        "DELETE FROM reservations WHERE until <= ? OR (checked_in = 0 AND created_at + ? <= ?)",
-        (t, GRACE_MS, t),
+        "DELETE FROM reservations WHERE until <= ? OR (checked_in = 0 AND created_at + grace_min * 60000 <= ?)",
+        (t, t),
     )
 
 
@@ -76,6 +87,7 @@ def to_json(r: sqlite3.Row) -> dict:
         "createdAt": r["created_at"],
         "until": r["until"],
         "checkedIn": bool(r["checked_in"]),
+        "graceMin": r["grace_min"],
     }
 
 
@@ -85,6 +97,7 @@ class NewReservation(BaseModel):
     plate: str = Field(min_length=4, max_length=15)
     user: str = Field(min_length=2, max_length=40)
     hours: int = Field(ge=1, le=12)
+    graceMin: int = Field(default=DEFAULT_GRACE_MIN, ge=5, le=120)  # возење до паркингот + 5 мин
 
 
 @app.get("/api/health")
@@ -113,8 +126,10 @@ def create_reservation(body: NewReservation):
         t = now_ms()
         rid = str(uuid.uuid4())
         conn.execute(
-            "INSERT INTO reservations VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
-            (rid, body.parkingId, body.spotId, body.plate.upper(), body.user, body.hours, t, t + body.hours * 3_600_000),
+            "INSERT INTO reservations (id, parking_id, spot_id, plate, user, hours, created_at, until, checked_in, grace_min)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)",
+            (rid, body.parkingId, body.spotId, body.plate.upper(), body.user, body.hours, t,
+             t + body.hours * 3_600_000, body.graceMin),
         )
         row = conn.execute("SELECT * FROM reservations WHERE id = ?", (rid,)).fetchone()
     return to_json(row)
@@ -136,3 +151,9 @@ def cancel(rid: str):
     with db() as conn:
         conn.execute("DELETE FROM reservations WHERE id = ?", (rid,))
     return Response(status_code=204)
+
+
+@app.post("/api/assistant")
+def assistant(body: ChatRequest):
+    """Асистент со Gemini: добива прашање + сегашна состојба на паркинзите, враќа одговор и предлози."""
+    return ask_gemini(body)

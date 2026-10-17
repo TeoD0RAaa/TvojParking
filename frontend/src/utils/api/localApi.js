@@ -1,5 +1,5 @@
 // Локален (демо) режим: резервациите се чуваат во прелистувачот
-import { isActive } from './reservation.js'
+import { GRACE_MIN, isActive } from './reservation.js'
 
 const KEY = 'tvojparking.reservations'
 const HOUR = 3600_000
@@ -13,11 +13,11 @@ export const localApi = {
     write(list)
     return list
   },
-  async create({ parkingId, spotId, plate, user, hours }) {
+  async create({ parkingId, spotId, plate, user, hours, graceMin = GRACE_MIN }) {
     const list = await localApi.list()
     if (list.some((r) => r.parkingId === parkingId && r.spotId === spotId)) throw new Error('Местото е веќе резервирано.')
     const now = Date.now()
-    const r = { id: crypto.randomUUID(), parkingId, spotId, plate, user, hours, createdAt: now, until: now + hours * HOUR, checkedIn: false }
+    const r = { id: crypto.randomUUID(), parkingId, spotId, plate, user, hours, createdAt: now, until: now + hours * HOUR, graceMin, checkedIn: false }
     write([...list, r])
     return r
   },
