@@ -1,17 +1,8 @@
-.mine { background: #f3effd; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
-.mine h3 { margin: 0 0 8px; font-size: 14px; color: var(--mine); }
-.mine__row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; padding: 4px 0; }
-.mine__row button { border: 0; background: none; color: var(--red); font-weight: 600; }
-
-.reserve { position: sticky; bottom: -28px; background: #fff; border-top: 1px solid var(--line); margin: 16px -20px -28px; padding: 16px 20px 20px; display: grid; gap: 12px; }
+.reserve { position: sticky; bottom: -28px; background: var(--card); border-top: 1px solid var(--line); margin: 16px -18px -28px; padding: 14px 18px 18px; display: grid; gap: 10px; }
 .reserve__hint { margin: 0; color: var(--muted); font-size: 14px; text-align: center; }
 .reserve__title { font-size: 15px; }
-.reserve label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
-.reserve input { font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; text-transform: uppercase; color: var(--ink); }
+.reserve__row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
 .durations { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.durations button { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 0; font-weight: 600; }
-.durations button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
-
-.cta { border: 0; background: var(--green); color: #fff; font-weight: 700; padding: 13px; border-radius: 12px; font-size: 16px; }
-.cta:disabled { background: #b8c2bc; cursor: not-allowed; }
+.durations button { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 8px 0; font-weight: 600; }
+.durations button.on { background: var(--ink); color: var(--card); border-color: var(--ink); }

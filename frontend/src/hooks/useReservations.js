@@ -1,17 +1,29 @@
-import { useEffect, useState } from 'react'
-import { createReservation, loadReservations, saveReservations } from '../utils/reservations.js'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { getApi, isActive, mineOnly } from '../utils/api/index.js'
+import { reservedSpotsByParking } from '../utils/stats.js'
 
-export function useReservations() {
-  const [reservations, setReservations] = useState(loadReservations)
+const POLL_MS = 5000
 
-  useEffect(() => { saveReservations(reservations) }, [reservations])
+// Резервации (на серверот се освежуваат на секои 5 сек, за да ги видиш туѓите)
+export function useReservations(mode, profile, now) {
+  const [reservations, setReservations] = useState([])
+  const api = getApi(mode)
 
-  const reserve = (data) => {
-    const r = createReservation(data)
-    setReservations((list) => [...list, r])
-    return r
-  }
-  const cancel = (id) => setReservations((list) => list.filter((r) => r.id !== id))
+  const refresh = useCallback(() => getApi(mode).list().then(setReservations).catch(() => {}), [mode])
+  useEffect(() => {
+    refresh()
+    if (mode !== 'server') return
+    const t = setInterval(refresh, POLL_MS)
+    return () => clearInterval(t)
+  }, [mode, refresh])
 
-  return { reservations, reserve, cancel }
+  const active = useMemo(() => reservations.filter((r) => isActive(r, now)), [reservations, now])
+  const mine = useMemo(() => mineOnly(active, mode, profile), [active, mode, profile])
+  const reservedByParking = useMemo(() => reservedSpotsByParking(active), [active])
+
+  const create = async (data) => { await api.create(data); await refresh() }
+  const checkIn = async (id) => { await api.checkIn(id); await refresh() }
+  const cancel = async (id) => { await api.cancel(id); await refresh() }
+
+  return { mine, reservedByParking, create, checkIn, cancel }
 }

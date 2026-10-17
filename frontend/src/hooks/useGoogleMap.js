@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { loadGoogleMaps } from '../utils/googleMaps.js'
-import { MAP_OPTIONS } from '../utils/mapConfig.js'
+import { mapOptions, mapStyles } from '../utils/mapConfig.js'
 
-// Ја прави Google мапата во дадениот контејнер (еднаш)
-export function useGoogleMap(containerRef) {
+// Ја прави Google мапата во дадениот контејнер (еднаш) и ја менува темата
+export function useGoogleMap(containerRef, theme) {
   const [state, setState] = useState({ google: null, map: null, error: null })
 
   useEffect(() => {
@@ -11,12 +11,14 @@ export function useGoogleMap(containerRef) {
     loadGoogleMaps()
       .then((google) => {
         if (cancelled) return
-        const map = new google.maps.Map(containerRef.current, MAP_OPTIONS)
+        const map = new google.maps.Map(containerRef.current, mapOptions(theme))
         setState({ google, map, error: null })
       })
       .catch((e) => !cancelled && setState((s) => ({ ...s, error: e.message })))
     return () => { cancelled = true }
-  }, [containerRef])
+  }, [containerRef]) // eslint-disable-line react-hooks/exhaustive-deps -- темата се менува подолу
+
+  useEffect(() => { state.map?.setOptions({ styles: mapStyles(theme) }) }, [state.map, theme])
 
   return state
 }

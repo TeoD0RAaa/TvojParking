@@ -2,20 +2,37 @@
   --green: #22a45d;
   --yellow: #e9a800;
   --red: #e0453a;
+  --mine: #6d4bd8;
   --ink: #1f2328;
   --muted: #6b7280;
   --line: #e5e7eb;
   --bg: #f6f7f8;
-  --mine: #6d4bd8;
+  --card: #ffffff;
+  --soft: #f3f4f6;
+  --spot-free-bg: #ffffff;
+  --spot-taken-bg: #eef0f2;
+  --spot-taken-line: #d1d5db;
+}
+:root[data-theme='dark'] {
+  --ink: #e8eaed;
+  --muted: #9aa0a8;
+  --line: #2c3036;
+  --bg: #15171a;
+  --card: #1c1f23;
+  --soft: #24282d;
+  --spot-free-bg: #1c1f23;
+  --spot-taken-bg: #2a2e33;
+  --spot-taken-line: #3a3f45;
 }
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
 body { font-family: Inter, system-ui, sans-serif; color: var(--ink); background: var(--bg); }
-button { font: inherit; cursor: pointer; }
+button { font: inherit; cursor: pointer; color: inherit; }
+input, select { font: inherit; color: var(--ink); background: var(--card); }
 
 /* Лев панел + мапа; на телефон мапата е горе */
-.app { display: grid; grid-template-columns: 400px 1fr; height: 100%; }
+.app { display: grid; grid-template-columns: 410px 1fr; height: 100%; }
 
 @media (max-width: 760px) {
-  .app { grid-template-columns: 1fr; grid-template-rows: 45vh 1fr; }
+  .app { grid-template-columns: 1fr; grid-template-rows: 40vh 1fr; }
 }

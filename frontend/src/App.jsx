@@ -1,53 +1,91 @@
 import { useMemo, useState } from 'react'
-import Panel from './components/layout/Panel.jsx'
+import Header from './components/layout/Header.jsx'
+import Tabs from './components/layout/Tabs.jsx'
+import PanelView from './components/layout/PanelView.jsx'
 import Toast from './components/layout/Toast.jsx'
 import ParkingMap from './components/map/ParkingMap.jsx'
 import MapLegend from './components/map/MapLegend.jsx'
-import ParkingList from './components/list/ParkingList.jsx'
-import ParkingDetails from './components/details/ParkingDetails.jsx'
+import { useTheme } from './hooks/useTheme.js'
+import { useProfile } from './hooks/useProfile.js'
+import { useApiMode } from './hooks/useApiMode.js'
+import { useNow } from './hooks/useNow.js'
 import { useReservations } from './hooks/useReservations.js'
+import { useLiveSimulation } from './hooks/useLiveSimulation.js'
+import { useOrigin } from './hooks/useOrigin.js'
+import { useNavigation } from './hooks/useNavigation.js'
 import { useToast } from './hooks/useToast.js'
-import { PARKINGS } from './data/parkings.js'
-import { buildSpots } from './utils/spots.js'
+import { PARKINGS, PARKINGS_BY_ID } from './data/parkings.js'
 import { buildStats } from './utils/stats.js'
-import { reservationsFor } from './utils/reservations.js'
+import { applyFilters, DEFAULT_FILTERS } from './utils/filters.js'
+import { nearestParking } from './utils/geo.js'
 
 export default function App() {
-  const [selectedId, setSelectedId] = useState(null)
-  const { reservations, reserve, cancel } = useReservations()
-  const [toast, showToast] = useToast()
+  const [theme, toggleTheme] = useTheme()
+  const [profile, setProfile] = useProfile()
+  const mode = useApiMode()
+  const now = useNow()
+  const { mine, reservedByParking, create, checkIn, cancel } = useReservations(mode, profile, now)
+  const { live, toggleLive, spotsById, releaseSpot, applyCarCount } = useLiveSimulation(PARKINGS, reservedByParking)
+  const { origin, setOrigin, locating, locate } = useOrigin()
+  const { view, selectedId, presetHours, openParking, goTo } = useNavigation()
+  const [filters, setFilters] = useState(DEFAULT_FILTERS)
+  const [toast, flash] = useToast()
 
-  // места за секој паркинг (се прават еднаш)
-  const spotsById = useMemo(() => Object.fromEntries(PARKINGS.map((p) => [p.id, buildSpots(p)])), [])
-  const stats = useMemo(() => buildStats(PARKINGS, spotsById, reservations), [spotsById, reservations])
-  const selected = PARKINGS.find((p) => p.id === selectedId)
+  const stats = useMemo(() => buildStats(PARKINGS, spotsById, reservedByParking), [spotsById, reservedByParking])
+  const filtered = useMemo(() => applyFilters(PARKINGS, stats, filters), [stats, filters])
+  const selected = PARKINGS_BY_ID[selectedId]
 
-  const handleReserve = ({ spotId, plate, hours }) => {
-    reserve({ parkingId: selected.id, spotId, plate, hours })
-    showToast(`Резервирано: ${selected.name}, место ${spotId} ✓`)
+  const findBest = async () => {
+    const o = await locate()
+    const candidates = filtered.filter((p) => stats[p.id].free > 0)
+    if (!candidates.length) return flash('Нема слободен паркинг со овие филтри 😕')
+    const best = nearestParking(o, candidates)
+    openParking(best.id)
+    flash(`Најблизок слободен: ${best.name}`)
+  }
+
+  const reserve = async ({ spotId, plate, hours, name }) => {
+    if (!profile || profile.name !== name || profile.plate !== plate) setProfile({ name, plate })
+    await create({ parkingId: selectedId, spotId, plate, user: name, hours })
+    releaseSpot(selectedId, spotId)
+    flash(`Резервирано: место ${spotId} ✓  QR кодот е во „Мои“`)
+  }
+  const handleCheckIn = async (id) => { await checkIn(id); flash('Добредојде! Паркиран си ✓') }
+  const handleCancel = async (id) => { await cancel(id); flash('Резервацијата е откажана') }
+
+  const applyScan = (parkingId, cars) => {
+    applyCarCount(parkingId, cars)
+    flash(`${PARKINGS_BY_ID[parkingId].name}: ${cars} коли од камерата`)
+    openParking(parkingId)
   }
 
   return (
     <div className="app">
-      <Panel>
-        {selected ? (
-          <ParkingDetails
-            key={selected.id}
-            parking={selected}
-            spots={spotsById[selected.id]}
-            myReservations={reservationsFor(reservations, selected.id)}
-            onBack={() => setSelectedId(null)}
-            onReserve={handleReserve}
-            onCancel={cancel}
-          />
-        ) : (
-          <ParkingList parkings={PARKINGS} stats={stats} onSelect={setSelectedId} />
-        )}
-      </Panel>
+      <aside className="panel">
+        <Header mode={mode} live={live} onToggleLive={toggleLive} theme={theme} onToggleTheme={toggleTheme} />
+        <Tabs view={view} mineCount={mine.length} onChange={goTo} />
+        <PanelView
+          view={view}
+          details={selected && {
+            parking: selected, spots: spotsById[selected.id], stat: stats[selected.id],
+            reservedIds: reservedByParking[selected.id] || new Set(),
+            myReservations: mine.filter((r) => r.parkingId === selected.id),
+            profile, origin, now, presetHours,
+            onBack: () => goTo('list'), onReserve: reserve, onCheckIn: handleCheckIn, onCancel: handleCancel,
+          }}
+          mine={{ reservations: mine, profile, setProfile, now, onCheckIn: handleCheckIn, onCancel: handleCancel, onOpen: openParking }}
+          assistant={{ parkings: PARKINGS, stats, origin, onOpen: openParking }}
+          scanner={{ parkings: PARKINGS, stats, onApply: applyScan }}
+          list={{
+            parkings: filtered, allCount: PARKINGS.length, stats, onSelect: openParking,
+            origin, setOrigin, onLocate: locate, onFindBest: findBest, locating, filters, setFilters,
+          }}
+        />
+      </aside>
 
       <main className="map-area">
-        <ParkingMap parkings={PARKINGS} stats={stats} selectedId={selectedId} onSelect={setSelectedId} />
-        <MapLegend />
+        <ParkingMap parkings={filtered} stats={stats} selectedId={selectedId} onSelect={openParking} origin={origin} theme={theme} />
+        <MapLegend live={live} />
       </main>
 
       <Toast message={toast} />

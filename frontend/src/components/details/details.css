@@ -1,12 +1,14 @@
-.back { border: 0; background: none; color: var(--muted); padding: 0; margin-bottom: 12px; }
+.back { border: 0; background: none; color: var(--muted); padding: 0; margin-bottom: 10px; }
 .back:hover { color: var(--ink); }
-.dname { margin: 0; font-size: 22px; }
-.dmeta { margin: 4px 0 16px; color: var(--muted); font-size: 14px; }
 
-.dstats { background: var(--bg); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; }
-.dstats__big { font-size: 34px; font-weight: 800; line-height: 1; }
-.dstats__big small { font-size: 18px; color: var(--muted); font-weight: 600; }
-.dstats__label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin: 8px 0 10px; }
+.dstats { background: var(--soft); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+.dstats__label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 14px; margin: 8px 0 10px; }
 .badge { color: #fff; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 99px; }
-.bar { height: 8px; background: #e2e5e9; border-radius: 99px; overflow: hidden; }
+.bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
 .bar div { height: 100%; border-radius: 99px; transition: width .3s; }
+
+.nav-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.nav-btn { background: #1a73e8; color: #fff; text-decoration: none; font-weight: 700; padding: 9px 14px; border-radius: 10px; font-size: 14px; }
+
+.mine-here { margin-bottom: 14px; }
+.mine-here h3 { margin: 0 0 8px; font-size: 14px; color: var(--mine); }

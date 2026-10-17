@@ -1,14 +1,15 @@
-.legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
 .legend span { display: flex; align-items: center; gap: 6px; }
 .legend .spot { width: 14px; height: 18px; padding: 0; font-size: 0; display: inline-block; }
 
 .block { border: 2px solid var(--ink); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
 .block h3 { margin: 0 0 10px; font-size: 14px; }
-.spots { display: grid; gap: 6px 6px; }
+.spots { display: grid; gap: 6px; }
 
 .spot { aspect-ratio: 3 / 4; border-radius: 5px; font-size: 11px; font-weight: 700; display: grid; place-items: center; padding: 0; }
-.spot--free { border: 2px solid var(--green); background: #fff; color: var(--green); }
-.spot--free:hover { background: #e8f7ee; }
+.spot--free { border: 2px solid var(--green); background: var(--spot-free-bg); color: var(--green); }
+.spot--free:hover { background: color-mix(in srgb, var(--green) 12%, var(--spot-free-bg)); }
+.spot--special.spot--free { border-style: dashed; font-size: 13px; }
 .spot--selected { border: 2px solid var(--green); background: var(--green); color: #fff; transform: scale(1.08); }
-.spot--taken { border: 2px solid #d1d5db; background: #eef0f2; color: #9ca3af; cursor: not-allowed; font-size: 13px; }
+.spot--taken { border: 2px solid var(--spot-taken-line); background: var(--spot-taken-bg); color: var(--muted); cursor: not-allowed; font-size: 13px; }
 .spot--mine { border: 2px solid var(--mine); background: var(--mine); color: #fff; cursor: default; }

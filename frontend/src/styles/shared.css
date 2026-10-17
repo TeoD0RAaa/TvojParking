@@ -1,0 +1,32 @@
+/* Класи што се користат во повеќе делови од апликацијата */
+.muted { color: var(--muted); font-size: 13px; }
+.link { border: 0; background: none; padding: 0; color: var(--ink); text-decoration: underline; }
+.empty { color: var(--muted); text-align: center; padding: 20px 0; }
+.error { color: var(--red); font-size: 14px; margin: 0; }
+.ok { color: var(--green); font-weight: 700; font-size: 14px; }
+.warn { color: var(--yellow); font-weight: 600; font-size: 13px; }
+.upper { text-transform: uppercase; }
+
+/* ---------- наслови на панелите ---------- */
+.dname { margin: 0; font-size: 21px; }
+.dmeta { margin: 4px 0 14px; color: var(--muted); font-size: 14px; }
+.dstats__big { font-size: 34px; font-weight: 800; line-height: 1; }
+.dstats__big small { font-size: 18px; color: var(--muted); font-weight: 600; }
+
+/* ---------- копчиња ---------- */
+.icon-btn { border: 1px solid var(--line); background: var(--card); border-radius: 10px; width: 36px; height: 36px; display: grid; place-items: center; flex: none; }
+.icon-btn:hover { background: var(--soft); }
+.small { border: 1px solid var(--line); background: var(--card); border-radius: 9px; padding: 6px 12px; font-size: 13px; font-weight: 600; }
+.small.primary { background: var(--green); border-color: var(--green); color: #fff; }
+.small.danger { color: var(--red); }
+.cta { border: 0; background: var(--green); color: #fff; font-weight: 700; padding: 13px; border-radius: 12px; font-size: 15px; width: 100%; }
+.cta:disabled { opacity: .5; cursor: not-allowed; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+.chip { border: 1px solid var(--line); background: var(--card); border-radius: 99px; padding: 6px 11px; font-size: 13px; font-weight: 500; }
+.chip:hover { background: var(--soft); }
+.chip--on { background: var(--ink); color: var(--card); border-color: var(--ink); }
+
+/* ---------- форми ---------- */
+.reserve label, .profile label, .field { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+.reserve input, .profile input, .field select { font-size: 15px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; width: 100%; }

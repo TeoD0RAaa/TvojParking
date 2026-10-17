@@ -5,7 +5,7 @@ export default function DetailsHeader({ parking, onBack }) {
     <>
       <button className="back" onClick={onBack}>← Сите паркинзи</button>
       <h2 className="dname">{parking.name}</h2>
-      <p className="dmeta">{parking.address} · {parking.pricePerHour} ден/час</p>
+      <p className="dmeta">{parking.type} · {parking.address} · {parking.pricePerHour} ден/час</p>
     </>
   )
 }

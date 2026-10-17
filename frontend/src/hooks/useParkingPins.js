@@ -1,28 +1,26 @@
 import { useEffect, useRef } from 'react'
-import { createPinClass } from '../utils/mapPins.js'
+import { createOverlayClass, pinHtml } from '../utils/mapOverlays.js'
 
-// Пин за секој паркинг на Google мапата
+// Пин за секој паркинг на мапата. Пиновите се прават еднаш, а филтрите само ги кријат/покажуваат.
 export function useParkingPins({ google, map, parkings, stats, selectedId, onSelect }) {
   const pinsRef = useRef({})
   const onSelectRef = useRef(onSelect)
   onSelectRef.current = onSelect
 
-  // Пиновите се прават кога мапата е готова
   useEffect(() => {
     if (!map) return
-    const HtmlPin = createPinClass(google)
-    const pins = {}
+    const HtmlOverlay = createOverlayClass(google)
+    const visible = new Set(parkings.map((p) => p.id))
     for (const p of parkings) {
-      pins[p.id] = new HtmlPin({ lat: p.lat, lng: p.lng }, () => onSelectRef.current(p.id))
-      pins[p.id].setMap(map)
+      const pin = (pinsRef.current[p.id] ||= new HtmlOverlay({ lat: p.lat, lng: p.lng }, () => onSelectRef.current(p.id)))
+      if (!pin.getMap()) pin.setMap(map)
+      const active = p.id === selectedId
+      pin.setContent(pinHtml(stats[p.id], active), active ? 1000 : 0)
     }
-    pinsRef.current = pins
-    return () => Object.values(pins).forEach((pin) => pin.setMap(null))
-  }, [google, map, parkings])
+    for (const [id, pin] of Object.entries(pinsRef.current)) {
+      if (!visible.has(id)) pin.setMap(null)
+    }
+  }, [google, map, parkings, stats, selectedId])
 
-  // Бојата и бројот се освежуваат кога ќе се промени зафатеноста или изборот
-  useEffect(() => {
-    if (!map) return
-    for (const p of parkings) pinsRef.current[p.id].update(stats[p.id], p.id === selectedId)
-  }, [map, parkings, stats, selectedId])
+  useEffect(() => () => Object.values(pinsRef.current).forEach((pin) => pin.setMap(null)), [])
 }

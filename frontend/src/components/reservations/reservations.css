@@ -1,0 +1,9 @@
+.rcard { display: flex; gap: 14px; border: 1px solid var(--line); border-left: 4px solid var(--mine); border-radius: 12px; padding: 12px; margin-bottom: 10px; font-size: 14px; }
+.rcard__qr { background: #fff; padding: 6px; border-radius: 8px; flex: none; height: fit-content; }
+.rcard__info { display: grid; gap: 3px; min-width: 0; }
+.rcard__name { font-weight: 700; text-align: left; text-decoration: none; }
+.rcard__actions { display: flex; gap: 8px; margin-top: 6px; }
+
+.profile { display: grid; gap: 10px; border-top: 1px solid var(--line); margin-top: 20px; padding-top: 16px; }
+.profile h3 { margin: 0; font-size: 15px; }
+.profile .small { width: fit-content; }

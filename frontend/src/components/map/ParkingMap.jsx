@@ -1,19 +1,27 @@
 import { useEffect, useRef } from 'react'
 import { useGoogleMap } from '../../hooks/useGoogleMap.js'
 import { useParkingPins } from '../../hooks/useParkingPins.js'
-import { focusOn } from '../../utils/mapConfig.js'
+import { useOriginMarker } from '../../hooks/useOriginMarker.js'
+import { focusOrigin, focusParking } from '../../utils/mapConfig.js'
 import './map.css'
 
-export default function ParkingMap({ parkings, stats, selectedId, onSelect }) {
+export default function ParkingMap({ parkings, stats, selectedId, onSelect, origin, theme }) {
   const containerRef = useRef(null)
-  const { google, map, error } = useGoogleMap(containerRef)
+  const { google, map, error } = useGoogleMap(containerRef, theme)
   useParkingPins({ google, map, parkings, stats, selectedId, onSelect })
+  useOriginMarker({ google, map, origin })
+
+  const selected = parkings.find((p) => p.id === selectedId)
 
   // Кога ќе избереш паркинг, мапата лета до него
   useEffect(() => {
-    const selected = parkings.find((p) => p.id === selectedId)
-    if (map && selected) focusOn(map, selected)
-  }, [map, parkings, selectedId])
+    if (map && selected) focusParking(map, selected)
+  }, [map, selected])
+
+  // Кога ќе се смени локацијата (а нема избран паркинг), лета до неа
+  useEffect(() => {
+    if (map && origin && !selected) focusOrigin(map, origin)
+  }, [map, origin]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="map">
