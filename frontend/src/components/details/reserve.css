@@ -1,12 +1,8 @@
 .reserve { position: sticky; bottom: -28px; background: var(--card); border-top: 1px solid var(--line); margin: 16px -18px -28px; padding: 14px 18px 18px; display: grid; gap: 10px; }
 .reserve__hint { margin: 0; color: var(--muted); font-size: 14px; text-align: center; }
-.reserve__title { font-size: 15px; }
 .reserve__row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-.durations { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.durations button { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 8px 0; font-weight: 600; }
-.durations button.on { background: var(--ink); color: var(--card); border-color: var(--ink); }
-.reserve__eta { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.4; }
+.reserve__eta, .reserve__price { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.4; }
 .kinds { display: flex; gap: 6px; flex-wrap: wrap; }
 .kinds button { flex: 1; border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 8px 6px; font-weight: 600; font-size: 13px; white-space: nowrap; }
 .kinds button.on { background: var(--ink); color: var(--card); border-color: var(--ink); }

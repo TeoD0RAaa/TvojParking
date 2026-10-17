@@ -26,6 +26,7 @@
 .chip { border: 1px solid var(--line); background: var(--card); border-radius: 99px; padding: 6px 11px; font-size: 13px; font-weight: 500; }
 .chip:hover { background: var(--soft); }
 .chip--on { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.chip--on:hover { background: var(--ink); opacity: .8; }
 
 /* ---------- форми ---------- */
 .reserve label, .profile label, .field { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }

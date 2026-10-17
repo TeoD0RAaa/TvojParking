@@ -1,25 +1,14 @@
 import Chip from '../common/Chip.jsx'
+import { FILTERS_BY_ID } from '../../utils/filters.js'
 
-const TYPES = [
-  { id: 'all', label: 'Сите' },
-  { id: 'garage', label: 'Гаражи' },
-  { id: 'open', label: 'Отворени' },
-]
-const TOGGLES = [
-  { key: 'onlyFree', label: 'Има место' },
-  { key: 'cheap', label: 'до 40 ден' },
-  { key: 'accessible', label: '♿' },
-  { key: 'ev', label: '⚡ полнач' },
-]
-
+// Вклучените филтри, по редот како се додадени. Клик на филтерот го трга.
 export default function FilterChips({ filters, setFilters }) {
-  const setType = (type) => setFilters((f) => ({ ...f, type }))
-  const toggle = (key) => setFilters((f) => ({ ...f, [key]: !f[key] }))
+  if (!filters.length) return null
+  const remove = (id) => setFilters((f) => f.filter((x) => x !== id))
 
   return (
-    <div className="chips">
-      {TYPES.map((t) => <Chip key={t.id} on={filters.type === t.id} onClick={() => setType(t.id)}>{t.label}</Chip>)}
-      {TOGGLES.map((t) => <Chip key={t.key} on={filters[t.key]} onClick={() => toggle(t.key)}>{t.label}</Chip>)}
+    <div className="chips filter-chips">
+      {filters.map((id) => <Chip key={id} on onClick={() => remove(id)}>{FILTERS_BY_ID[id].label} ×</Chip>)}
     </div>
   )
 }

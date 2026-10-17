@@ -4,11 +4,9 @@ import { useState } from 'react'
 export function useNavigation() {
   const [view, setView] = useState('list')
   const [selectedId, setSelectedId] = useState(null)
-  const [presetHours, setPresetHours] = useState(null)
 
-  const openParking = (id, hours = null) => {
+  const openParking = (id) => {
     setSelectedId(id)
-    setPresetHours(hours)
     setView('details')
   }
   const goTo = (v) => {
@@ -16,5 +14,5 @@ export function useNavigation() {
     if (v !== 'details') setSelectedId(null)
   }
 
-  return { view, selectedId, presetHours, openParking, goTo }
+  return { view, selectedId, openParking, goTo }
 }

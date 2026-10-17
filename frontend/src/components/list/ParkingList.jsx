@@ -1,5 +1,6 @@
-import OriginPicker from './OriginPicker.jsx'
+import AddFilter from './AddFilter.jsx'
 import FilterChips from './FilterChips.jsx'
+import OriginNote from './OriginNote.jsx'
 import ListSummary from './ListSummary.jsx'
 import ParkingListItem from './ParkingListItem.jsx'
 import { sortForList, totalFree } from '../../utils/stats.js'
@@ -14,8 +15,12 @@ export default function ParkingList({ parkings, allCount, stats, onSelect, origi
         {locating ? 'Те барам…' : '🧭 Најди ми паркинг'}
       </button>
 
-      <OriginPicker origin={origin} setOrigin={setOrigin} onLocate={onLocate} />
+      <div className="search">
+        <AddFilter filters={filters} setFilters={setFilters} />
+        <button className="icon-btn" onClick={onLocate} title="Моја локација">📍</button>
+      </div>
       <FilterChips filters={filters} setFilters={setFilters} />
+      <OriginNote origin={origin} onClear={() => setOrigin(null)} />
       <ListSummary count={parkings.length} allCount={allCount} free={totalFree(parkings, stats)} />
 
       {sorted.length === 0 && <p className="empty">Нема паркинг со овие филтри.</p>}

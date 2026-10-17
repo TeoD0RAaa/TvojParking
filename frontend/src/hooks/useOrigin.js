@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { getMyLocation } from '../utils/geo.js'
 
-// Од каде бараме паркинг: твојата локација или избрано место („Каде одиш?“)
+// Од каде бараме паркинг: твојата локација
 export function useOrigin() {
   const [origin, setOrigin] = useState(null)
   const [locating, setLocating] = useState(false)

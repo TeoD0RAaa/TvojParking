@@ -18,6 +18,7 @@ import { PARKINGS, PARKINGS_BY_ID } from './data/parkings.js'
 import { buildStats } from './utils/stats.js'
 import { applyFilters, DEFAULT_FILTERS } from './utils/filters.js'
 import { nearestParking } from './utils/geo.js'
+import { MAX_HOURS } from './utils/api/index.js'
 
 export default function App() {
   const [theme, toggleTheme] = useTheme()
@@ -25,9 +26,9 @@ export default function App() {
   const mode = useApiMode()
   const now = useNow()
   const { mine, reservedByParking, create, checkIn, cancel } = useReservations(mode, profile, now)
-  const { live, toggleLive, spotsById, releaseSpot } = useLiveSimulation(PARKINGS, reservedByParking)
+  const { spotsById, releaseSpot } = useLiveSimulation(PARKINGS, reservedByParking)
   const { origin, setOrigin, locating, locate } = useOrigin()
-  const { view, selectedId, presetHours, openParking, goTo } = useNavigation()
+  const { view, selectedId, openParking, goTo } = useNavigation()
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [toast, flash] = useToast()
 
@@ -44,9 +45,10 @@ export default function App() {
     flash(`Најблизок слободен: ${best.name}`)
   }
 
-  const reserve = async ({ spotId, plate, hours, name, graceMin }) => {
+  // нема бирање часови: местото е твое до MAX_HOURS, а се наплаќа по поминати часови (billedHours)
+  const reserve = async ({ spotId, plate, name, graceMin }) => {
     if (!profile || profile.name !== name || profile.plate !== plate) setProfile({ name, plate })
-    await create({ parkingId: selectedId, spotId, plate, user: name, hours, graceMin })
+    await create({ parkingId: selectedId, spotId, plate, user: name, hours: MAX_HOURS, graceMin })
     releaseSpot(selectedId, spotId)
     flash(`Резервирано: место ${spotId} ✓  Имаш ${graceMin} мин да стигнеш`)
   }
@@ -56,7 +58,7 @@ export default function App() {
   return (
     <div className="app">
       <aside className="panel">
-        <Header mode={mode} live={live} onToggleLive={toggleLive} theme={theme} onToggleTheme={toggleTheme} />
+        <Header mode={mode} theme={theme} onToggleTheme={toggleTheme} />
         <Tabs view={view} mineCount={mine.length} onChange={goTo} />
         <PanelView
           view={view}
@@ -64,7 +66,7 @@ export default function App() {
             parking: selected, spots: spotsById[selected.id], stat: stats[selected.id],
             reservedIds: reservedByParking[selected.id] || new Set(),
             myReservations: mine.filter((r) => r.parkingId === selected.id),
-            profile, origin, now, presetHours,
+            profile, origin, now,
             onBack: () => goTo('list'), onReserve: reserve, onCheckIn: handleCheckIn, onCancel: handleCancel,
           }}
           mine={{ reservations: mine, profile, setProfile, now, onCheckIn: handleCheckIn, onCancel: handleCancel, onOpen: openParking }}
@@ -78,7 +80,7 @@ export default function App() {
 
       <main className="map-area">
         <ParkingMap parkings={filtered} stats={stats} selectedId={selectedId} onSelect={openParking} origin={origin} theme={theme} />
-        <MapLegend live={live} />
+        <MapLegend />
       </main>
 
       <Toast message={toast} />

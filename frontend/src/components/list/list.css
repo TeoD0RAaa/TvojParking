@@ -1,8 +1,9 @@
 .find-btn { width: 100%; border: 0; background: var(--ink); color: var(--card); font-weight: 700; padding: 13px; border-radius: 12px; font-size: 15px; margin-bottom: 10px; }
 .find-btn:disabled { opacity: .6; }
-.search { display: flex; gap: 8px; margin-bottom: 6px; }
+.search { display: flex; gap: 8px; margin-bottom: 12px; }
 .search select { flex: 1; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
-.origin-note { font-size: 13px; color: var(--muted); margin: 4px 0 8px; }
+.filter-chips { margin: -4px 0 12px; }
+.origin-note { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
 
 .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .summary div { background: var(--soft); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; }

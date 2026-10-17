@@ -9,7 +9,7 @@ export default function ChatMessage({ message, stats, onOpen }) {
       {message.picks?.length > 0 && (
         <div className="msg__picks">
           {message.picks.map((id) => (
-            <ParkingPick key={id} id={id} stat={stats[id]} onClick={() => onOpen(id, message.hours)} />
+            <ParkingPick key={id} id={id} stat={stats[id]} onClick={() => onOpen(id)} />
           ))}
         </div>
       )}

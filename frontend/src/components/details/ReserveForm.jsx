@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import DriverFields from './DriverFields.jsx'
-import DurationPicker from './DurationPicker.jsx'
+import { MAX_HOURS } from '../../utils/api/index.js'
 import { EXTRA_MIN } from '../../utils/travelTime.js'
 import { useTravelTime } from '../../hooks/useTravelTime.js'
 import { isValidName, isValidPlate, normalizePlate } from '../../utils/format.js'
@@ -13,13 +13,13 @@ const FULL_TEXT = {
 }
 
 /*
-  Резервација без бирање место: избираш само вид (обично / ♿ / ⚡) и колку часа,
+  Резервација без бирање место: избираш само вид (обично / ♿ / ⚡),
   а системот ти го дава следното слободно место по ред.
+  Нема бирање часови: почнува со 1 ч, а секој нов започнат час се доплаќа.
 */
-export default function ReserveForm({ parking, kind, setKind, next, stat, pricePerHour, profile, presetHours, onReserve }) {
+export default function ReserveForm({ parking, kind, setKind, next, stat, pricePerHour, profile, onReserve }) {
   const [name, setName] = useState(profile?.name || '')
   const [plate, setPlate] = useState(profile?.plate || '')
-  const [hours, setHours] = useState(presetHours || 2)
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const trip = useTravelTime(parking, true) // колку ти треба до тука -> толку време имаш да пристигнеш
@@ -30,7 +30,7 @@ export default function ReserveForm({ parking, kind, setKind, next, stat, priceP
     if (!valid) return
     setBusy(true); setError(null)
     try {
-      await onReserve({ plate: normalizePlate(plate), hours, name: name.trim(), graceMin: trip.graceMin })
+      await onReserve({ plate: normalizePlate(plate), name: name.trim(), graceMin: trip.graceMin })
     } catch (err) {
       setError(err.message)
     } finally { setBusy(false) }
@@ -54,9 +54,11 @@ export default function ReserveForm({ parking, kind, setKind, next, stat, priceP
 
       {!next ? <p className="reserve__hint">{FULL_TEXT[kind]}</p> : (
         <>
-          <div className="reserve__title">Ќе го добиеш место <b>{next.id}</b> <span className="muted">(следното слободно по ред)</span></div>
           <DriverFields name={name} setName={setName} plate={plate} setPlate={setPlate} />
-          <DurationPicker value={hours} onChange={setHours} />
+          <p className="reserve__price">
+            Се плаќа по час: <b>{pricePerHour} ден</b> за првиот час веднаш, па уште {pricePerHour} ден за секој нов започнат час
+            (најмногу {MAX_HOURS} ч).
+          </p>
           <p className="reserve__eta">
             {trip
               ? <>🚗 ~{trip.driveMin} мин до тука{trip.source === 'google' ? ' (Google, со сообраќај)' : ' (проценка)'}
@@ -65,7 +67,7 @@ export default function ReserveForm({ parking, kind, setKind, next, stat, priceP
           </p>
           {error && <p className="error">{error}</p>}
           <button className="cta" disabled={!valid || busy}>
-            {busy ? 'Резервирам…' : `Резервирај место · ${hours * pricePerHour} ден`}
+            {busy ? 'Резервирам…' : `Резервирај место · ${pricePerHour} ден/ч`}
           </button>
         </>
       )}

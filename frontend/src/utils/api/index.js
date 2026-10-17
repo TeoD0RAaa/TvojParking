@@ -10,7 +10,7 @@ import { localApi } from './localApi.js'
 import { isServerUp, serverApi } from './serverApi.js'
 import { firebaseApi, isFirebaseUp } from './firebaseApi.js'
 
-export { GRACE_MIN, isActive, graceMinutesLeft, mineOnly, qrPayload } from './reservation.js'
+export { GRACE_MIN, MAX_HOURS, billedHours, isActive, graceMinutesLeft, mineOnly, qrPayload } from './reservation.js'
 export { isServerUp } from './serverApi.js'
 
 export const detectMode = async () => {
