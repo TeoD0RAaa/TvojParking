@@ -2,16 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import ChatMessage from './ChatMessage.jsx'
 import ChatInput from './ChatInput.jsx'
 import { answer } from '../../utils/assistant/index.js'
-import { askGemini } from '../../utils/assistant/gemini.js'
+import { askGemini, hasDirectKey } from '../../utils/assistant/gemini.js'
 import './assistant.css'
 
 const SUGGESTIONS = ['Каде да паркирам близу Кале за 2 часа?', 'Евтин паркинг до плоштад', 'Гаража со полнач', 'Кога е најмалку гужва кај Клинички?']
 const GREETING = { from: 'bot', text: 'Здраво! 👋 Кажи ми каде одиш, па ќе ти најдам паркинг.', picks: [] }
 
-// mode: 'server' -> Gemini преку backend-от; 'local' -> резервен асистент со правила (без интернет)
+// Gemini: директно со клучот од .env.local, или преку backend-от. Без клуч и без backend -> резервен асистент со правила.
 export default function Assistant({ parkings, stats, origin, mode, onOpen }) {
   const [messages, setMessages] = useState([GREETING])
   const [thinking, setThinking] = useState(false)
+  const gemini = hasDirectKey || mode === 'server'
   const endRef = useRef(null)
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, thinking])
 
@@ -22,8 +23,8 @@ export default function Assistant({ parkings, stats, origin, mode, onOpen }) {
     const history = messages.slice(1) // без поздравот
     setMessages((m) => [...m, { from: 'me', text }])
 
-    if (mode !== 'server') {
-      setMessages((m) => [...m, offline(text, 'Офлајн одговор — вклучи го backend-от за Gemini.')])
+    if (!gemini) {
+      setMessages((m) => [...m, offline(text, 'Офлајн одговор — додај VITE_GEMINI_API_KEY во frontend/.env.local.')])
       return true
     }
     setThinking(true)
@@ -37,7 +38,7 @@ export default function Assistant({ parkings, stats, origin, mode, onOpen }) {
   return (
     <div className="panel-body chat">
       <h2 className="dname">Асистент</h2>
-      <p className="dmeta">{mode === 'server' ? '✨ Gemini · ги гледа слободните места во живо' : 'Офлајн режим (без backend)'}</p>
+      <p className="dmeta">{gemini ? '✨ Gemini · ги гледа слободните места во живо' : 'Офлајн режим (нема Gemini клуч)'}</p>
       <div className="chat__log">
         {messages.map((m, i) => <ChatMessage key={i} message={m} stats={stats} onOpen={onOpen} />)}
         {thinking && <div className="msg msg--bot msg--typing"><span /><span /><span /></div>}
