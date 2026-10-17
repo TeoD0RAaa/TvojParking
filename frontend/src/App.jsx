@@ -25,7 +25,7 @@ export default function App() {
   const mode = useApiMode()
   const now = useNow()
   const { mine, reservedByParking, create, checkIn, cancel } = useReservations(mode, profile, now)
-  const { live, toggleLive, spotsById, releaseSpot, applyCarCount } = useLiveSimulation(PARKINGS, reservedByParking)
+  const { live, toggleLive, spotsById, releaseSpot } = useLiveSimulation(PARKINGS, reservedByParking)
   const { origin, setOrigin, locating, locate } = useOrigin()
   const { view, selectedId, presetHours, openParking, goTo } = useNavigation()
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
@@ -53,12 +53,6 @@ export default function App() {
   const handleCheckIn = async (id) => { await checkIn(id); flash('Добредојде! Паркиран си ✓') }
   const handleCancel = async (id) => { await cancel(id); flash('Резервацијата е откажана') }
 
-  const applyScan = (parkingId, cars) => {
-    applyCarCount(parkingId, cars)
-    flash(`${PARKINGS_BY_ID[parkingId].name}: ${cars} коли од камерата`)
-    openParking(parkingId)
-  }
-
   return (
     <div className="app">
       <aside className="panel">
@@ -75,7 +69,6 @@ export default function App() {
           }}
           mine={{ reservations: mine, profile, setProfile, now, onCheckIn: handleCheckIn, onCancel: handleCancel, onOpen: openParking }}
           assistant={{ parkings: PARKINGS, stats, origin, mode, onOpen: openParking }}
-          scanner={{ parkings: PARKINGS, stats, onApply: applyScan }}
           list={{
             parkings: filtered, allCount: PARKINGS.length, stats, onSelect: openParking,
             origin, setOrigin, onLocate: locate, onFindBest: findBest, locating, filters, setFilters,

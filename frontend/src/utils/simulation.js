@@ -1,5 +1,4 @@
 import { pickRandom } from './random.js'
-import { setTakenCount } from './spots.js'
 
 const CARS_PER_TICK = 3
 const TOLERANCE = 0.03
@@ -30,10 +29,3 @@ export function simulateStep(spotsById, parkings, reservedByParking, targets) {
 
 // Местото е твое: симулацијата не смее да стави кола таму
 export const freeSpot = (spots, spotId) => spots.map((s) => (s.id === spotId ? { ...s, taken: false } : s))
-
-// Точно `cars` зафатени места (на пр. од AI скенерот)
-export function withCarCount(spots, cars, reserved) {
-  const next = spots.map((s) => ({ ...s }))
-  setTakenCount(next, cars, reserved)
-  return next
-}

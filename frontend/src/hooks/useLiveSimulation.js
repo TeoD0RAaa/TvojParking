@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { buildSpots } from '../utils/spots.js'
-import { freeSpot, simulateStep, withCarCount } from '../utils/simulation.js'
+import { freeSpot, simulateStep } from '../utils/simulation.js'
 
 const TICK_MS = 5000
 const byId = (parkings, fn) => Object.fromEntries(parkings.map((p) => [p.id, fn(p)]))
@@ -10,7 +10,7 @@ export function useLiveSimulation(parkings, reservedByParking) {
   const [live, setLive] = useState(true)
   const [spotsById, setSpotsById] = useState(() => byId(parkings, buildSpots))
   // „целен“ процент зафатеност кон кој се движи симулацијата
-  const [targets, setTargets] = useState(() => byId(parkings, (p) => p.occupancy))
+  const [targets] = useState(() => byId(parkings, (p) => p.occupancy))
 
   useEffect(() => {
     if (!live) return
@@ -23,12 +23,5 @@ export function useLiveSimulation(parkings, reservedByParking) {
   const releaseSpot = (parkingId, spotId) =>
     setSpotsById((prev) => ({ ...prev, [parkingId]: freeSpot(prev[parkingId], spotId) }))
 
-  // AI скенерот го менува бројот на зафатени места
-  const applyCarCount = (parkingId, cars) => {
-    setTargets((t) => ({ ...t, [parkingId]: cars / spotsById[parkingId].length }))
-    const reserved = reservedByParking[parkingId] || new Set()
-    setSpotsById((prev) => ({ ...prev, [parkingId]: withCarCount(prev[parkingId], cars, reserved) }))
-  }
-
-  return { live, toggleLive, spotsById, releaseSpot, applyCarCount }
+  return { live, toggleLive, spotsById, releaseSpot }
 }

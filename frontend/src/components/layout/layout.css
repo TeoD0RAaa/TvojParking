@@ -10,7 +10,7 @@
 .mode--local { color: var(--muted); }
 
 /* ---------- табови ---------- */
-.tabs { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); padding: 0 8px; }
+.tabs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-bottom: 1px solid var(--line); padding: 0 8px; }
 .tabs button { border: 0; background: none; padding: 10px 4px; font-size: 13px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; position: relative; }
 .tabs button.on { color: var(--ink); border-bottom-color: var(--ink); }
 .tabs .count { position: absolute; top: 4px; right: 6px; background: var(--mine); color: #fff; font-style: normal; font-size: 11px; border-radius: 99px; padding: 1px 6px; }
