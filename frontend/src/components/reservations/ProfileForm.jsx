@@ -17,7 +17,7 @@ export default function ProfileForm({ profile, setProfile }) {
       <label>Име<input value={name} onChange={(e) => setName(e.target.value)} placeholder="Теодора" /></label>
       <label>Регистарска<input className="upper" value={plate} onChange={(e) => setPlate(e.target.value)} placeholder="SK-1234-AB" /></label>
       <button className="small primary">Зачувај</button>
-      {profile && <span className="muted"> Најавена како <b>{profile.name}</b></span>}
+      {profile && <span className="muted"> Најавени како <b>{profile.name}</b></span>}
     </form>
   )
 }
