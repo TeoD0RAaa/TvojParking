@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  // релативни патеки, за да работи и на GitHub Pages (teod0raaa.github.io/TvojParking/)
+  base: './',
   server: {
     // секогаш на 5173: Google Maps клучот е дозволен само за localhost:5173.
     // Ако портата е зафатена (старо `npm run dev`), Vite јавува грешка наместо тивко да оди на 5174/5175.
