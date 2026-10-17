@@ -10,7 +10,9 @@ import { distanceKm } from './geo.js'
 export const EXTRA_MIN = 5      // резерва што се додава на секое возење
 const MIN_GRACE = 5
 const MAX_GRACE = 120           // да не може некој да „чува“ место цел ден
-const CITY_KMH = 25             // просечна брзина во Скопје
+const CITY_KMH = 25             // просечна брзина низ град
+const ROAD_KMH = 70             // меѓу градови (автопат / регионален пат)
+const INTERCITY_KM = 15         // подалеку од ова = возење меѓу градови
 const ROAD_FACTOR = 1.4         // улиците не се права линија
 
 // Колку минути имаш да пристигнеш, за дадено време на возење
@@ -18,7 +20,11 @@ export const graceForDrive = (driveMin) =>
   Math.min(MAX_GRACE, Math.max(MIN_GRACE, Math.ceil(driveMin) + EXTRA_MIN))
 
 // Наша проценка ако Google не е достапен
-export const estimateDriveMin = (from, to) => Math.max(1, Math.round(((distanceKm(from, to) * ROAD_FACTOR) / CITY_KMH) * 60))
+export function estimateDriveMin(from, to) {
+  const km = distanceKm(from, to) * ROAD_FACTOR
+  const kmh = km > INTERCITY_KM ? ROAD_KMH : CITY_KMH
+  return Math.max(1, Math.round((km / kmh) * 60))
+}
 
 async function googleDriveMin(from, to) {
   const google = await loadGoogleMaps()

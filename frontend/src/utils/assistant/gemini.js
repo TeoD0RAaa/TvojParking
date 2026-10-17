@@ -7,6 +7,7 @@
   проценка за следните часови, за да одговара со вистински бројки од апликацијата.
 */
 import { LANDMARKS } from '../../data/landmarks.js'
+import { CITIES, CITIES_BY_ID } from '../../data/cities.js'
 import { distanceKm } from '../geo.js'
 import { forecast } from '../forecast.js'
 import { pad2 } from '../format.js'
@@ -19,7 +20,7 @@ const MODELS = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.5-flash']
 
 export const hasDirectKey = Boolean(API_KEY)
 
-const SYSTEM_PROMPT = `Ти си асистентот на апликацијата TvojParking за паркинзи во Скопје.
+const SYSTEM_PROMPT = `Ти си асистентот на апликацијата TvojParking за паркинзи низ цела Македонија (Скопје, Битола, Охрид, Струга, Куманово, Тетово, Прилеп, Штип…).
 Зборуваш на македонски (ако корисникот пишува на латиница или англиски, одговори на истиот јазик),
 кратко и пријателски: 1–3 реченици.
 
@@ -27,11 +28,15 @@ const SYSTEM_PROMPT = `Ти си асистентот на апликација�
 - parkings: секој паркинг со id, име, тип, адреса, цена (ден/час), слободни/вкупно места,
   слободни ♿ и ⚡ места, растојание од корисникот (km, ако е познато) и
   forecast = наша статистичка проценка на слободни места за следните часови.
-- landmarks: познати места во Скопје со координати.
+- landmarks: познати места (со градот во кој се) и координати.
+- city: градот што корисникот моментално го гледа во апликацијата; cities: сите градови.
 - origin: каде е корисникот (ако е познато), now: сегашно време.
 
 Правила:
 - Ако корисникот само поздравува или муабети, одговори пријателски и прашај каде оди; picks = [].
+- Ако корисникот не спомене град, препорачувај паркинзи од city. Ако спомене друг град, препорачај од тој град
+  (апликацијата сама ќе го смени градот кога ќе кликне).
+- Цените и бројките се различни по градови — секогаш кажи го градот кога не е city.
 - Користи САМО податоците од context. Не измислувај паркинзи, цени или бројки.
 - Ако корисникот спомене место (на пр. Кале, плоштад), избери паркинзи близу тоа место според координатите.
 - Ако паркинг има 0 слободни места, не го препорачувај за паркирање сега (освен ако прашува „кога“).
@@ -51,15 +56,17 @@ const RESPONSE_SCHEMA = {
   required: ['text', 'picks'],
 }
 
-export function buildContext({ parkings, stats, origin, now = new Date() }) {
+export function buildContext({ parkings, stats, origin, city, now = new Date() }) {
   return {
+    city: city?.name || null,
+    cities: CITIES.map((c) => c.name),
     now: now.toLocaleString('mk-MK', { weekday: 'long', hour: '2-digit', minute: '2-digit' }),
     origin: origin ? { name: origin.name, lat: origin.lat, lng: origin.lng } : null,
-    landmarks: LANDMARKS.map(({ name, lat, lng }) => ({ name, lat, lng })),
+    landmarks: LANDMARKS.map((l) => ({ name: l.name, city: CITIES_BY_ID[l.city]?.name, lat: l.lat, lng: l.lng })),
     parkings: parkings.map((p) => {
       const s = stats[p.id]
       return {
-        id: p.id, name: p.name, type: p.type, address: p.address, lat: p.lat, lng: p.lng,
+        id: p.id, name: p.name, city: CITIES_BY_ID[p.city]?.name, type: p.type, address: p.address, lat: p.lat, lng: p.lng,
         pricePerHour: p.pricePerHour, free: Math.max(0, s.free), total: s.total,
         freeAccessible: s.freeAccessible, freeEv: p.ev ? s.freeEv : 0,
         distanceKm: origin ? Number(distanceKm(origin, p).toFixed(2)) : null,

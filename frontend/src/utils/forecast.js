@@ -4,7 +4,7 @@
   1) Дневен профил: просечна зафатеност за секој час (0–23) за типот паркинг
      (центар / болница / рекреација / станбено). Во вистинска верзија ова е просекот
      од историските мерења по „ден во неделата × час“. Сега профилите се симулирани.
-  2) Викенд-фактор и „личен“ фактор на паркингот (некои се секогаш полни).
+  2) Викенд-фактор, сезонски фактор (Охрид/Струга во лето) и „личен“ фактор на паркингот.
   3) Корекција со сегашната состојба: ако сега паркингот е пополн/попразен од просекот,
      таа разлика (резидуал) ја додаваме и во иднина, но таа избледува експоненцијално:
          p(t + h) = профил(t + h) + (сега − профил(сега)) · e^(−h / τ),   τ = 2 ч
@@ -25,6 +25,16 @@ const SIGMA_MAX = 0.12   // најголема очекувана грешка (
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x))
 
+// Туристички градови (Охрид, Струга): лето (јуни–август) многу гужва, зима помалку
+const SEASONAL_CITIES = new Set(['ohrid', 'struga'])
+function seasonFactor(parking, date) {
+  if (!SEASONAL_CITIES.has(parking.city)) return 1
+  const m = date.getMonth() // 0 = јануари
+  if (m >= 5 && m <= 7) return 1.3
+  if (m === 4 || m === 8) return 1.05
+  return 0.8
+}
+
 // Само историскиот просек за даден момент (0..1), без сегашната состојба
 export function profileOccupancy(parking, date) {
   const profile = PROFILES[parking.category] || PROFILES.center
@@ -33,8 +43,9 @@ export function profileOccupancy(parking, date) {
   const base = profile[h] * (1 - m) + profile[(h + 1) % 24] * m // мазен премин меѓу часовите
   const day = date.getDay()
   const factor = day === 0 || day === 6 ? WEEKEND[parking.category] : 1
+  const season = seasonFactor(parking, date)
   const personal = 0.6 + 0.5 * parking.occupancy // паркинзите што се почесто полни имаат повисок профил
-  return clamp01(base * factor * personal)
+  return clamp01(base * factor * season * personal)
 }
 
 /*

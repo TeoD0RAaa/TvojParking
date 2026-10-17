@@ -12,7 +12,7 @@ export default function ReservationCard({ r, parking, now, onCheckIn, onCancel, 
       <div className="rcard__info">
         <button className="rcard__name link" onClick={onOpen}>{parking.name}</button>
         <div>Место <b>{r.spotId}</b> · {r.plate}</div>
-        <div className="muted">до {formatTime(r.until)} · {r.hours * parking.pricePerHour} ден</div>
+        <div className="muted">до {formatTime(r.until)} · {r.hours * parking.pricePerHour} ден · платено ✓</div>
         {r.checkedIn
           ? <div className="ok">✓ Паркиран</div>
           : <div className="warn">Пристигни за {graceMinutesLeft(r, now)} мин или истекува</div>}

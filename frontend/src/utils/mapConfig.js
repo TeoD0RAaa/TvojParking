@@ -36,3 +36,4 @@ function flyTo(map, { lat, lng }, zoom) {
 }
 export const focusParking = (map, parking) => flyTo(map, parking, PARKING_ZOOM)
 export const focusOrigin = (map, origin) => flyTo(map, origin, ORIGIN_ZOOM)
+export const focusCity = (map, city) => flyTo(map, city, city.zoom || 14)

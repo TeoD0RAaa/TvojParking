@@ -1,7 +1,28 @@
 .find-btn { width: 100%; border: 0; background: var(--ink); color: var(--card); font-weight: 700; padding: 13px; border-radius: 12px; font-size: 15px; margin-bottom: 10px; }
 .find-btn:disabled { opacity: .6; }
-.search { display: flex; gap: 8px; margin-bottom: 6px; }
-.search select { flex: 1; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+/* пребарување „Каде одиш?“ */
+.sbox-wrap { position: relative; margin-bottom: 10px; }
+.sbox { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 14px; padding: 6px 6px 6px 14px; background: var(--card); transition: border-color .15s, box-shadow .15s; }
+.sbox--open, .sbox:focus-within { border-color: var(--mine); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mine) 15%, transparent); }
+.sbox__icon { color: var(--muted); flex: none; }
+.sbox input { flex: 1; min-width: 0; border: 0; outline: 0; padding: 8px 0; font-size: 15px; background: transparent; }
+.sbox input::placeholder { color: var(--muted); }
+.sbox__chosen { flex: 1; min-width: 0; text-align: left; border: 0; background: none; padding: 8px 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbox__clear { border: 0; background: var(--soft); width: 24px; height: 24px; border-radius: 50%; font-size: 16px; line-height: 1; color: var(--muted); flex: none; }
+.sbox__near { display: flex; align-items: center; gap: 5px; border: 0; border-radius: 99px; padding: 8px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; flex: none;
+  color: var(--mine); background: color-mix(in srgb, var(--mine) 12%, var(--card)); }
+.sbox__near:hover { background: color-mix(in srgb, var(--mine) 20%, var(--card)); }
+.sbox__near--on { background: var(--mine); color: #fff; }
+.sbox__near:disabled { opacity: .7; }
+.sbox__list { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 20; list-style: none; margin: 0; padding: 6px; background: var(--card);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+.sbox__list button { width: 100%; display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 9px 10px; border-radius: 10px; text-align: left; }
+.sbox__list button.on { background: var(--soft); }
+.sbox__kind { width: 28px; height: 28px; border-radius: 8px; background: var(--soft); display: grid; place-items: center; font-size: 14px; flex: none; }
+.sbox__text { display: flex; flex-direction: column; min-width: 0; font-size: 14px; }
+.sbox__text b { font-weight: 600; }
+.sbox__text small { color: var(--muted); font-size: 12px; }
+.sbox__empty { color: var(--muted); font-size: 13px; padding: 12px 14px; }
 .origin-note { font-size: 13px; color: var(--muted); margin: 4px 0 8px; }
 
 .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
@@ -19,3 +40,4 @@
 .pitem__meta { color: var(--muted); font-size: 13px; }
 .pitem__free { font-weight: 800; font-size: 18px; flex: none; }
 .pitem__free small { color: var(--muted); font-weight: 500; font-size: 13px; }
+.plist__city { list-style: none; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding: 14px 10px 4px; }

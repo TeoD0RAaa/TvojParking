@@ -6,9 +6,10 @@ export function useOrigin() {
   const [origin, setOrigin] = useState(null)
   const [locating, setLocating] = useState(false)
 
-  const locate = async () => {
+  // fallback: центарот на избраниот град, ако не дозволиш локација
+  const locate = async (fallback) => {
     setLocating(true)
-    const me = await getMyLocation()
+    const me = await getMyLocation(fallback)
     setLocating(false)
     const o = { ...me, mine: !me.fallback }
     setOrigin(o)
